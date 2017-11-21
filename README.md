@@ -1,4 +1,8 @@
-# tensor_parser
+Tensor Parser
+=============
+
+[![Build Status](https://travis-ci.org/frostt-tensor/tensor_parser.svg?branch=master)](https://travis-ci.org/frostt-tensor/tensor_parser)
+
 A package for constructing sparse tensors from CSV-like data sources.
 
 ## Testing
