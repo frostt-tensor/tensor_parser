@@ -34,8 +34,8 @@ class TestCSVParser(unittest.TestCase):
     self.assertEqual(imap['banana'], 3)
 
 
-  def test_sort_num(self):
-    imap = index_map(index_map.SORT_NUM)
+  def test_sort_int(self):
+    imap = index_map(index_map.SORT_INT)
     imap.add(3)
     imap.add(2)
     imap.add(0)
@@ -45,6 +45,20 @@ class TestCSVParser(unittest.TestCase):
     self.assertEqual(imap[0], 1)
     self.assertEqual(imap[2], 2)
     self.assertEqual(imap[3], 3)
+
+
+  def test_sort_flt(self):
+    imap = index_map(index_map.SORT_FLT)
+    imap.add(3.2)
+    imap.add(2.1)
+    imap.add(2.5)
+
+    imap.build_map()
+
+    self.assertEqual(imap[2.1], 1)
+    self.assertEqual(imap[2.5], 2)
+    self.assertEqual(imap[3.2], 3)
+
 
 
 

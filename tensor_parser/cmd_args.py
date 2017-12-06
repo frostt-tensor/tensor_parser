@@ -35,7 +35,7 @@ class csv_config:
       for field_name in cmd_args.sort_num:
         for x in self._modes:
           if x['csv_field'] == field_name:
-            x['sort'] = index_map.SORT_NUM
+            x['sort'] = index_map.SORT_INT
     if cmd_args.sort_lex:
       for field_name in cmd_args.sort_lex:
         for x in self._modes:
@@ -50,7 +50,7 @@ class csv_config:
       dictionary will take the form:
       {
         csv_field => one of the columns in the CSV file
-        sort => one of the appropriate `index_map.SORT_XXX` values
+        sort      => one of the appropriate `index_map.SORT_XXX` values
       }
     '''
     return self._modes[mode_idx]

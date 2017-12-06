@@ -33,7 +33,7 @@ class TestCSVParser(unittest.TestCase):
   def test_sort(self):
     myargs = ['1.csv', '2.csv', 'out.tns', '-f2', '-fuser', '-n2', '-luser']
     config = cmd_args.parse_args(myargs)
-    self.assertEqual(config.mode(0)['sort'], index_map.SORT_NUM)
+    self.assertEqual(config.mode(0)['sort'], index_map.SORT_INT)
     self.assertEqual(config.mode(1)['sort'], index_map.SORT_LEX)
 
 

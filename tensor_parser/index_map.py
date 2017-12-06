@@ -22,9 +22,15 @@ class index_map:
   #
   # Static members
   #
-  SORT_NONE = 0
-  SORT_LEX  = 1
-  SORT_NUM  = 2
+  
+  #
+  # Sorting types. These are lambda functions which are applied to the keys
+  # before sorting.
+  #
+  SORT_NONE = lambda x : x
+  SORT_LEX  = lambda x : str(x)
+  SORT_INT  = lambda x : int(x)
+  SORT_FLT  = lambda x : float(x)
 
   def __init__(self, sort=SORT_NONE):
     self._keys = OrderedDict()
@@ -48,21 +54,14 @@ class index_map:
       Build a mapping of keys -> indices. This should only be called after all
       keys have been added to the structure.
     '''
-    uniques = list(self._keys)
-    
+    # apply transformation to keys
+    uniques = [self._sort(x) for x in self._keys]
+
     # sort keys if requested
-    if self._sort == index_map.SORT_LEX:
-      uniques = [str(x) for x in uniques]
-      uniques.sort()
-    elif self._sort == index_map.SORT_NUM:
-      try:
-        uniques = [int(x) for x in uniques]
-      except ValueError as e:
-        print('ERROR: discovered key that cannot be cast as integer.')
-        print(e)
-        sys.exit(1)
-      uniques.sort()
-    
+    if self._sort != index_map.SORT_NONE:
+        uniques.sort()
+
+    # build actual mapping
     for i in range(len(uniques)):
       self._map[str(uniques[i])] = i+1
 
@@ -87,7 +86,7 @@ class index_map:
 
     if not self._is_mapped:
       raise Exception('ERROR: must use `build_map()` before accessing mapping.')
-    
+
     if key not in self._map:
       raise IndexError('ERROR: key "{}" not found in map.'.format(key))
 
