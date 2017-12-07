@@ -2,8 +2,8 @@
 
 import sys
 import argparse
-from tensor_parser.index_map import index_map
-from tensor_parser.tensor_config import tensor_config
+from .index_map import index_map
+from .tensor_config import tensor_config
 
 
 def parse_args(cmd_args=None):

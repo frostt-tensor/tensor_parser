@@ -1,6 +1,6 @@
 
 
-from tensor_parser.index_map import index_map
+from .index_map import index_map
 
 class tensor_config:
   def __init__(self, csv_names=None, tensor_name=None):

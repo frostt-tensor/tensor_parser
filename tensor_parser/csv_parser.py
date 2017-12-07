@@ -10,12 +10,12 @@ import bz2
 #
 
 def open_file(fname, mode):
-  '''
-    A wrapper around `open()` which also supports gzip and bz2.
+  """ A wrapper around `open()` that also supports gzip and bz2.
 
-    `mode` should either be 'r' or 'w'. A 't' will be appended when reading
-    from a compressed file.
-  '''
+  Args:
+    mode (str): should either be 'r' or 'w'. A 't' will be appended when
+                reading from a compressed file.
+  """
   if fname.endswith('.gz'):
     return gzip.open(fname, mode + 't')
   elif fname.endswith('.bz2'):
@@ -26,10 +26,14 @@ def open_file(fname, mode):
 
 
 def get_file_sample(fname, max_lines=100):
-  '''
-    Return up to the first `max_lines` of file `fname`. This is useful for CSV
-    sniffing.
-  '''
+  """ Return up to the first `max_lines` of file `fname`.
+  
+  This is useful for CSV sniffing.
+
+  Args:
+    fname (str): The name of the file to read.
+    max_lines (int): The maximum number of lines to read.
+  """
   sample = ''
   nlines = 0
   # gather sample for sniffer
@@ -42,17 +46,24 @@ def get_file_sample(fname, max_lines=100):
   return sample
 
 
+
 #
 # The good stuff.
 #
 
 class csv_parser:
-  '''
-    A class representing a CSV file which is a thin wrapper above the python
-    CSV library.
-  '''
+  """ A class representing a CSV file which is a thin wrapper above the python
+  CSV library.
+  """
 
   def __init__(self, fname, delim=None, has_header=None):
+    """ Construct a parser for a specific file.
+    Args:
+      fname (str): The CSV file to parse
+      delim (str): CSV delimiter (overrides discovered)
+      has_header (bool): Whether the CSV file has a head (overrides discovered)
+    """
+
     self._fname = fname
 
     # Sniff the file to get a dialect, which stores metadata such as delimiter.
@@ -85,11 +96,12 @@ class csv_parser:
         self._header = [x+1 for x in range(len(line))]
     self._file_has_header = has_header
 
+
   def rows(self):
-    '''
-      Yield rows of the CSV file in dictionary form. Keys are taken from
-      `_header` and values are those found in the file.
-    '''
+    """ Yield rows of the CSV file in dictionary form.
+    
+    Keys are taken from `_header` and values are those found in the file.
+    """
     print('Parsing {}...'.format(self._fname), file=stderr)
     print('  delim: {}'.format(self.delim()), file=stderr)
     print('  header: [{}]'.format(', '.join(self.header())), file=stderr)
