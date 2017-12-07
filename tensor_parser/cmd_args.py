@@ -3,83 +3,7 @@
 import sys
 import argparse
 from tensor_parser.index_map import index_map
-
-
-class csv_config:
-  '''
-    A class providing structure to the command-line arguments. This defines
-    tensor modes, their respective fields in the CSV file(s), etc.
-  '''
-
-  def __init__(self, cmd_args):
-    self._inputs = cmd_args.csv
-    self._output = cmd_args.tensor
-    self._field_sep = cmd_args.field_sep
-
-    self._modes = []
-    if cmd_args.field is None:
-      print("ERROR: no fields from CSV specified. Re-run with '--help'")
-      sys.exit(1)
-
-    # construct mode dictionaries
-    for f in cmd_args.field:
-      self._modes.append(
-        {
-          'csv_field' : f,
-          'sort'      : index_map.SORT_NONE,
-        }
-      )
-
-    # Set non-default sort values
-    if cmd_args.sort_num:
-      for field_name in cmd_args.sort_num:
-        for x in self._modes:
-          if x['csv_field'] == field_name:
-            x['sort'] = index_map.SORT_INT
-    if cmd_args.sort_lex:
-      for field_name in cmd_args.sort_lex:
-        for x in self._modes:
-          if x['csv_field'] == field_name:
-            x['sort'] = index_map.SORT_LEX
-
-
-
-  def mode(self, mode_idx):
-    '''
-      Return the dictionary representing meta-data for mode `mode_idx`. The
-      dictionary will take the form:
-      {
-        csv_field => one of the columns in the CSV file
-        sort      => one of the appropriate `index_map.SORT_XXX` values
-      }
-    '''
-    return self._modes[mode_idx]
-
-  def delimiter(self):
-    '''
-      User-specified CSV delimiter. `None` if unspecified.
-    '''
-    return self._field_sep
-
-  def inputs(self):
-    '''
-      Return the list of input CSV files.
-    '''
-    return self._inputs
-
-  def output(self):
-    '''
-      The output filename.
-    '''
-    return self._output
-
-
-  def num_modes(self):
-    '''
-      Return the number of modes in the tensor.
-    '''
-    return len(self._modes)
-
+from tensor_parser.tensor_config import tensor_config
 
 
 def parse_args(cmd_args=None):
@@ -112,22 +36,51 @@ def parse_args(cmd_args=None):
       help='include FIELD as tensor mode')
   parser.add_argument('--vals', type=str,
       help='the field to use for values')
+
   parser.add_argument('-l', '--sort-lex', type=str, action='append',
       help="sort a fields's keys lexicographically")
   parser.add_argument('-n', '--sort-num', type=str, action='append',
-      help="sort a fields's keys numerically")
+      help="sort a fields's integer keys")
 
 
   #
-  # Other configuration
+  # CSV configuration
   #
   parser.add_argument('-F', '--field-sep', type=str, default=',',
-      help='CSV field separator (default: ",")')
+      help='CSV field separator (default: auto)')
 
+  #
+  # Parse arguments.
+  #
+  args = None
   if cmd_args is not None:
     # parse provided args
-    return csv_config(parser.parse_args(cmd_args))
+    args = cmd_args=parser.parse_args(cmd_args)
   else:
     # parse sys.argv
-    return csv_config(parser.parse_args())
+    args = cmd_args=parser.parse_args()
+
+  # fill in lists if not present
+  if not args.field:
+    print('WARN: tensor has no modes specified.', file=sys.stderr)
+    args.field = []
+  if not args.sort_lex:
+    args.sort_lex = []
+  if not args.sort_num:
+    args.sort_num = []
+
+
+  # Build tensor configuration
+  config = tensor_config(csv_names=cmd_args.csv, tensor_name=cmd_args.tensor)
+  config.set_delimiter(cmd_args.field_sep)
+  for f in cmd_args.field:
+    config.add_mode(f)
+  for f in cmd_args.sort_lex:
+    config.set_mode_sort(f, index_map.SORT_LEX)
+  for f in cmd_args.sort_num:
+    config.set_mode_sort(f, index_map.SORT_INT)
+  config.set_vals(cmd_args.vals)
+
+  return config
+
 
