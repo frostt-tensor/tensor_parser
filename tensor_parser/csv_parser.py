@@ -121,10 +121,11 @@ class csv_parser:
       except csv.Error as e:
         exit('ERROR {} line {}: {}'.format(self._fname, reader.line_num, e))
 
-  def delim(self):
+  def get_delimiter(self):
     return self._dialect.delimiter
 
-  def header(self):
+  def get_header(self):
+    """ Return the header of the CSV file. """
     return self._header
 
   def num_columns(self):
