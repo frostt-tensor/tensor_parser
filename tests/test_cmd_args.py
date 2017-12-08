@@ -51,6 +51,20 @@ class TestCSVParser(unittest.TestCase):
     config = build_tensor.parse_args(myargs)
     self.assertEqual(config.get_vals(), 'ratings')
 
+  def test_header(self):
+    myargs = ['hi.csv', 'out.tns', '-f1']
+    config = build_tensor.parse_args(myargs)
+    self.assertEqual(config.has_header(), None)
+
+    myargs = ['hi.csv', 'out.tns', '-f1', '--has-header=yes']
+    config = build_tensor.parse_args(myargs)
+    self.assertEqual(config.has_header(), True)
+
+    myargs = ['hi.csv', 'out.tns', '-f1', '--has-header=no']
+    config = build_tensor.parse_args(myargs)
+    self.assertEqual(config.has_header(), False)
+
+
 if __name__ == '__main__':
     unittest.main()
 

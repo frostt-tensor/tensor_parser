@@ -19,6 +19,7 @@ class tensor_config:
 
     # defaults
     self._field_sep = None
+    self._has_header = None
     self._modes = []
     self._vals = None
 
@@ -27,13 +28,33 @@ class tensor_config:
     """ Specify the delimiter in the CSV file(s).
     
     This will override whichever delimiter is detected automatically.
+
+    Args:
+      delim (str): The delimiter to use in the CSV files.
     """
     self._field_sep = delim
+
 
   def get_delimiter(self):
     """ Return the user-specified CSV delimiter. Returns None if unspecified.
     """
     return self._field_sep
+
+
+  def set_header(self, has_header):
+    """ Indicate whether the input CSVs have a header row.
+
+    This will override the header that is automatically detected.
+
+    Args:
+      has_header (bool): Whether the CSVs have a header as the first row
+    """
+    self._has_header = has_header
+
+
+  def has_header(self):
+    """ Return bool indicating whether CSVs should have a header row. """
+    return self._has_header
 
 
   def add_mode(self, csv_field, sort_policy=index_map.SORT_NONE):

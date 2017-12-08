@@ -4,25 +4,25 @@ import sys
 from collections import OrderedDict
 
 class index_map:
-  '''
-    This class constructs and maintains a mapping of strings to contiguous
-    indices in a tensor. All keys are converted to strings (`str()`) before
-    insertion/access. Indices start from 1.
+  """ Construct and maintain a mapping of strings to contiguous indices in a
+  tensor.
 
-    After all keys have been added with `add()`, the map to continuous indices
-    must be built with `build_map()`. Mappings of keys -> indices can then be
-    accessed with `__getitem__()` (i.e., `my_map['apple']` will return its
-    index in the tensor).
+  All keys are converted to strings (`str()`) before insertion/access. Indices
+  start from 1.
 
-    The map supports several sorting modes to be specified at initialization.
-    If no sorting is specified, keys are mapped based on their order of
-    insertion.
-  '''
+  After all keys have been added with `add()`, the map to continuous indices
+  must be built with `build_map()`. Mappings of keys -> indices can then be
+  accessed with `__getitem__()` (i.e., `my_map['apple']` will return its index
+  in the tensor).
+
+  The map supports several sorting modes to be specified at initialization. If
+  no sorting is specified, keys are mapped based on their order of insertion.
+  """
 
   #
   # Static members
   #
-  
+
   #
   # Sorting types. These are lambda functions which are applied to the keys
   # before sorting.

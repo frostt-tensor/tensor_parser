@@ -15,6 +15,7 @@ if __name__ == '__main__' and __package__ is None:
 from tensor_parser.index_map import index_map
 from tensor_parser.tensor_config import tensor_config
 from tensor_parser.csv_parser import csv_parser
+from tensor_parser.builder import build_tensor
 
 
 def parse_args(cmd_args=None):
@@ -59,8 +60,10 @@ def parse_args(cmd_args=None):
   #
   # CSV configuration
   #
-  parser.add_argument('-F', '--field-sep', type=str, default=',',
+  parser.add_argument('-F', '--field-sep', type=str,
       help='CSV field separator (default: auto)')
+  parser.add_argument('--has-header', choices=['yes', 'no'],
+      help='Indicate whether CSV has a header row (default: auto)')
 
   parser.add_argument('-q', '--query', action='append',
       choices=['field-sep', 'header'],
@@ -77,6 +80,12 @@ def parse_args(cmd_args=None):
   else:
     # parse sys.argv
     args = cmd_args=parser.parse_args()
+
+  if args.has_header:
+    if args.has_header == 'yes':
+      args.has_header = True
+    else:
+      args.has_header = False
 
   #
   # Check for file query.
@@ -105,6 +114,7 @@ def parse_args(cmd_args=None):
   # Build tensor configuration
   config = tensor_config(csv_names=cmd_args.csv, tensor_name=cmd_args.tensor)
   config.set_delimiter(cmd_args.field_sep)
+  config.set_header(cmd_args.has_header)
   for f in cmd_args.field:
     config.add_mode(f)
   for f in cmd_args.sort_lex:
@@ -119,5 +129,6 @@ def parse_args(cmd_args=None):
 
 if __name__ == '__main__':
   config = parse_args()
+  build_tensor(config)
 
 
