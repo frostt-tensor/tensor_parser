@@ -1,9 +1,20 @@
+#!/usr/bin/env python3
 
-
-import sys
+import os, sys
 import argparse
-from .index_map import index_map
-from .tensor_config import tensor_config
+import pprint
+
+# fix path nonsense: https://stackoverflow.com/a/6466139
+if __name__ == '__main__' and __package__ is None:
+  from sys import path
+  from os.path import dirname as dir
+  path.append(dir(path[0]))
+  __package__ = 'bin'
+
+
+from tensor_parser.index_map import index_map
+from tensor_parser.tensor_config import tensor_config
+from tensor_parser.csv_parser import csv_parser
 
 
 def parse_args(cmd_args=None):
@@ -15,19 +26,21 @@ def parse_args(cmd_args=None):
     otherwise can be specified with a 1-indexed integer corresponding to their
     column in the CSV file.
 
+    The field separator and CSV header can often be automatically detected.
+    Use the '--query' flag to determine what is automatically detected. For
+    example, '--query=header' will print the list of discovered CSV fields.
+
     If no field is provided for tensor values ('--vals'), then a binary tensor
     is constructed.
   '''
   parser = argparse.ArgumentParser(description=my_description,
       formatter_class=argparse.RawTextHelpFormatter)
 
-
   #
   # Required positional arguments
   #
   parser.add_argument('csv', type=str, nargs='+', help='CSV files to parse')
   parser.add_argument('tensor',  type=str, help='output tensor file (.tns)')
-
 
   #
   # Adding and modifying tensor modes
@@ -49,6 +62,11 @@ def parse_args(cmd_args=None):
   parser.add_argument('-F', '--field-sep', type=str, default=',',
       help='CSV field separator (default: auto)')
 
+  parser.add_argument('-q', '--query', action='append',
+      choices=['field-sep', 'header'],
+      help='print the header found in the CSV file and exit')
+
+
   #
   # Parse arguments.
   #
@@ -60,6 +78,21 @@ def parse_args(cmd_args=None):
     # parse sys.argv
     args = cmd_args=parser.parse_args()
 
+  #
+  # Check for file query.
+  #
+  if args.query:
+    parser = csv_parser(args.csv[0])
+    for query in args.query:
+      if query == 'field-sep':
+        print('Found delimiter: "{}"'.format(parser.get_delimiter()))
+      if query == 'header':
+        print('Found fields:')
+        pprint.pprint(parser.get_header())
+    sys.exit(0)
+
+
+
   # fill in lists if not present
   if not args.field:
     print('WARN: tensor has no modes specified.', file=sys.stderr)
@@ -68,7 +101,6 @@ def parse_args(cmd_args=None):
     args.sort_lex = []
   if not args.sort_num:
     args.sort_num = []
-
 
   # Build tensor configuration
   config = tensor_config(csv_names=cmd_args.csv, tensor_name=cmd_args.tensor)
@@ -82,5 +114,10 @@ def parse_args(cmd_args=None):
   config.set_vals(cmd_args.vals)
 
   return config
+
+
+
+if __name__ == '__main__':
+  config = parse_args()
 
 
