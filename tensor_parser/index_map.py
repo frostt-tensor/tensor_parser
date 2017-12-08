@@ -71,13 +71,14 @@ class index_map:
     return self._is_mapped
 
 
-  def write_file(self, fout):
+  def write_file(self, filename):
     '''
       Write an index map to a file. The map is inverted such that if map[X]=I,
       then X is written to the Ith line of `fout`.
     '''
-    for key in sorted(self._map, key=self._map.get) :
-      print(key, file=fout)
+    with open(filename, 'w') as fout:
+      for key in sorted(self._map, key=self._map.get) :
+        print(key, file=fout)
 
 
   def __getitem__(self, key):
