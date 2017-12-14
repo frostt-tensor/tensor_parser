@@ -9,10 +9,9 @@ if __name__ == '__main__' and __package__ is None:
   from sys import path
   from os.path import dirname as dir
   path.append(dir(path[0]))
-  __package__ = 'bin'
+  __package__ = 'scripts'
 
 
-from tensor_parser.index_map import index_map
 from tensor_parser.tensor_config import tensor_config
 from tensor_parser.csv_parser import csv_parser
 from tensor_parser.builder import build_tensor
@@ -40,8 +39,10 @@ def parse_args(cmd_args=None):
   #
   # Required positional arguments
   #
-  parser.add_argument('csv', type=str, nargs='+', help='CSV files to parse')
-  parser.add_argument('tensor',  type=str, help='output tensor file (.tns)')
+  parser.add_argument('csv', type=str, nargs='+',
+      help='CSV files to parse')
+  parser.add_argument('tensor', type=str,
+      help='output tensor file (.tns)')
 
   #
   # Adding and modifying tensor modes
@@ -51,11 +52,10 @@ def parse_args(cmd_args=None):
   parser.add_argument('--vals', type=str,
       help='the field to use for values')
 
-  parser.add_argument('-l', '--sort-lex', type=str, action='append',
-      help="sort a fields's keys lexicographically")
-  parser.add_argument('-n', '--sort-num', type=str, action='append',
-      help="sort a fields's integer keys")
-
+  parser.add_argument('--no-sort', type=str, metavar='FIELD', action='append',
+      help="do not sort FIELD")
+  parser.add_argument('-t', '--type', type=str, metavar='FIELDS,TYPE',
+      action='append', help="treat FIELDs as type TYPE. See --help for details")
 
   #
   # CSV configuration
@@ -67,7 +67,7 @@ def parse_args(cmd_args=None):
 
   parser.add_argument('-q', '--query', action='append',
       choices=['field-sep', 'header'],
-      help='print the header found in the CSV file and exit')
+      help='query a component of the CSV file and exit')
 
 
   #
@@ -88,7 +88,7 @@ def parse_args(cmd_args=None):
       args.has_header = False
 
   #
-  # Check for file query.
+  # Check for file query.no_sort
   #
   if args.query:
     parser = csv_parser(args.csv[0])
@@ -101,15 +101,14 @@ def parse_args(cmd_args=None):
     sys.exit(0)
 
 
-
   # fill in lists if not present
   if not args.field:
     print('WARN: tensor has no modes specified.', file=sys.stderr)
     args.field = []
-  if not args.sort_lex:
-    args.sort_lex = []
-  if not args.sort_num:
-    args.sort_num = []
+  if not args.no_sort:
+    args.no_sort = []
+  if not args.type:
+    args.type = []
 
   # Build tensor configuration
   config = tensor_config(csv_names=cmd_args.csv, tensor_name=cmd_args.tensor)
@@ -117,10 +116,20 @@ def parse_args(cmd_args=None):
   config.set_header(cmd_args.has_header)
   for f in cmd_args.field:
     config.add_mode(f)
-  for f in cmd_args.sort_lex:
-    config.set_mode_sort(f, index_map.SORT_LEX)
-  for f in cmd_args.sort_num:
-    config.set_mode_sort(f, index_map.SORT_INT)
+
+  for f in cmd_args.no_sort:
+    config.set_mode_sort(f, False)
+
+  #
+  # Set mode types. Each --type flag gives us a string of
+  # field,field,..,typefunc
+  for f in cmd_args.type:
+    f = f.split(',')
+    mtype = f[-1]
+    for field in f[:-1]:
+      print('field "{}" -> type "{}"'.format(field, mtype))
+      config.set_mode_type(field, eval(mtype))
+
   config.set_vals(cmd_args.vals)
 
   return config

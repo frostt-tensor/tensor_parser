@@ -3,6 +3,17 @@
 from .index_map import index_map
 
 class tensor_config:
+  
+
+  #
+  # Sorting types. These are lambda functions which are applied to the keys
+  # before sorting.
+  #
+  TYPE_STR = lambda x : str(x)
+  TYPE_INT = lambda x : int(x)
+  TYPE_FLOAT = lambda x : float(x)
+
+
   def __init__(self, csv_names=None, tensor_name=None):
     """ An intermediate representation of user configuration information.
     
@@ -57,16 +68,11 @@ class tensor_config:
     return self._has_header
 
 
-  def add_mode(self, csv_field, sort_policy=index_map.SORT_NONE):
-    """ Add a mode to the tensor.
-
-    Args:
-      csv_field (str): Which field of the CSV to use
-      sort (func): See `set_mode_sort()`
-    """
+  def add_mode(self, csv_field, transform=TYPE_STR, sort=True):
     mode = dict()
     mode['field'] = csv_field
-    mode['sort']  = sort_policy
+    mode['type']  = transform
+    mode['sort']  = sort
     self._modes.append(mode)
 
 
@@ -78,69 +84,69 @@ class tensor_config:
     """
     self._vals = csv_field
 
+
   def get_vals(self):
     """ Return the field of the CSV file to use as the tensor values.  """
     return self._vals
 
 
-  def set_mode_sort(self, csv_field, sort_policy):
-    """ Set the sorting policy for a mode.
+  def set_mode_sort(self, csv_field, to_sort):
+    for idx in range(self.num_modes()):
+      if self._modes[idx]['field'].lower() == csv_field.lower():
+        self._modes[idx]['sort'] = to_sort
+        return
+    raise IndexError("Error: field '{}' not found.".format(csv_field))
 
-    The sorting policy will ultimately be supplied to an `index_map`. This
-    should be a function which transforms a string key to another type before
-    sorting.  For example:
 
-      set_mode_sort('user_ids', lambda x : int(x))
+  def set_mode_type(self, csv_field, type_func):
+    """ Set the type of a mode.
 
-    will sort the mode defined by user_ids by their integer representations.
-    Several predefined ones are provided in the `index_map` class. The above
-    example could be accomplished via:
+    The mode type will ultimately be supplied to an `index_map`. This should be
+    a function which transforms a string key to another type before sorting.
+    For example:
 
-      set_mode_sort('user_ids', index_map.SORT_INT)
+      set_mode_type('user_ids', lambda x : int(x))
+
+    will type of the mode defined by user_ids by their integer representations.
+    Several predefined ones are provided. The above example could be
+    accomplished via:
+
+      set_mode_type('user_ids', TYPE_INT)
+
+    Also provided are TYPE_STR, TYPE_INT, and TYPE_FLOAT.
 
     If `csv_field` does not specify a mode which has been added via
     `add_mode()`, this function raises an IndexError.
 
     Args:
       csv_field (str): Which field of the CSV to modify
-      sort_policy (func): A function which converts the key before `sorted()`
+      mode_type (func): A function which converts the key before `sorted()`
     """
 
     for idx in range(len(self._modes)):
-      if self._modes[idx]['field'] == csv_field:
-        self._modes[idx]['sort'] = sort_policy
+      if self._modes[idx]['field'].lower() == csv_field.lower():
+        self._modes[idx]['type'] = type_func
         return
     raise IndexError("Error: field '{}' not found.".format(csv_field))
 
 
-  def get_mode_sort(self, csv_field):
-    """Return the sorting policy for a mode.
-
-    If `csv_field` does not specify a mode which has been added via
-    `add_mode()`, this function raises an IndexError.
-
-    Args:
-      csv_field (str): Which field of the CSV to query
-    """
-    for idx in range(len(self._modes)):
-      if self._modes[idx]['field'] == csv_field:
-        return self._modes[idx]['sort']
-    raise IndexError("Error: field '{}' not found.".format(csv_field))
-
-
-  def get_mode(self, mode_idx):
+  def get_mode_by_idx(self, mode_idx):
     """ Return the dictionary representing meta-data for mode `mode_idx`.
     
     The dictionary will take the form:
       {
         csv_field => one of the columns in the CSV file
-        sort      => sorting policy
+        type      => function for setting type (finc)
+        sort      => sorting policy (bool)
       }
 
     Args:
       mode_idx (int): Which mode of the tensor to query (zero-indexed)
     """
+    if mode_idx >= self.num_modes():
+      raise IndexError("Error: mode {} not found.".format(mode_idx))
     return self._modes[mode_idx]
+
 
   def add_input(self, csv_file):
     """ Add a file to the list of inputs.

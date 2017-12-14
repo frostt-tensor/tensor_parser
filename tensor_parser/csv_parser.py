@@ -93,7 +93,7 @@ class csv_parser:
       if has_header:
         self._header = line
       else:
-        self._header = [x+1 for x in range(len(line))]
+        self._header = [str(x+1) for x in range(len(line))]
     self._file_has_header = has_header
 
 
@@ -102,9 +102,6 @@ class csv_parser:
     
     Keys are taken from `_header` and values are those found in the file.
     """
-    print('Parsing {}...'.format(self._fname), file=stderr)
-    print('  delimiter: "{}"'.format(self.get_delimiter()), file=stderr)
-    print('  header: [{}]'.format(', '.join(self.get_header())), file=stderr)
 
     with open_file(self._fname, 'r') as f:
       reader = csv.reader(f, self._dialect)
