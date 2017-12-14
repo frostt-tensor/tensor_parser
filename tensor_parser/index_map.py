@@ -16,7 +16,7 @@ class index_map:
   in the tensor).
   """
 
-  def __init__(self, name, type_func='lamba x : x', sort=True):
+  def __init__(self, name="", type_func=str, sort=True):
     self._keys = OrderedDict()
     self._map  = dict()
 
@@ -29,7 +29,8 @@ class index_map:
     self.skipped = set()
 
   def __access_key(self, key):
-    assert(isinstance(key, str))
+    if not isinstance(key, str):
+      key = str(key)
     try:
       return self._type_func(key)
     except:

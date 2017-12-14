@@ -91,6 +91,7 @@ class tensor_config:
 
 
   def set_mode_sort(self, csv_field, to_sort):
+    assert(isinstance(to_sort, bool))
     for idx in range(self.num_modes()):
       if self._modes[idx]['field'].lower() == csv_field.lower():
         self._modes[idx]['sort'] = to_sort
@@ -136,7 +137,7 @@ class tensor_config:
     The dictionary will take the form:
       {
         csv_field => one of the columns in the CSV file
-        type      => function for setting type (finc)
+        type      => function for setting type (func)
         sort      => sorting policy (bool)
       }
 

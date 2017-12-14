@@ -34,8 +34,8 @@ def build_tensor(config):
   for m in range(num_modes):
     m_type = config.get_mode_by_idx(m)['type']
     sort_  = config.get_mode_by_idx(m)['sort']
-    name = config.get_mode_by_idx(m)['field']
-    indmaps.append(index_map(name, type_func=m_type, sort=sort_))
+    name_ = config.get_mode_by_idx(m)['field']
+    indmaps.append(index_map(name=name, type_func=m_type, sort=sort_))
 
   #
   # Build index maps
