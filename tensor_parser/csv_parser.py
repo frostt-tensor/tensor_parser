@@ -93,18 +93,15 @@ class csv_parser:
       if has_header:
         self._header = line
       else:
-        self._header = [x+1 for x in range(len(line))]
+        self._header = [str(x+1) for x in range(len(line))]
     self._file_has_header = has_header
 
 
   def rows(self):
-    """ Yield rows of the CSV file in dictionary form.
+    """ Yield rows of the CSV file. Each row is represented as a list.
     
     Keys are taken from `_header` and values are those found in the file.
     """
-    print('Parsing {}...'.format(self._fname), file=stderr)
-    print('  delim: {}'.format(self.delim()), file=stderr)
-    print('  header: [{}]'.format(', '.join(self.header())), file=stderr)
 
     with open_file(self._fname, 'r') as f:
       reader = csv.reader(f, self._dialect)
@@ -129,6 +126,7 @@ class csv_parser:
     return self._header
 
   def num_columns(self):
+    """ Return the number of columns in the CSV file. """
     return len(self._header)
 
 

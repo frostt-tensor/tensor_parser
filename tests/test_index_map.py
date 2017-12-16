@@ -6,11 +6,25 @@ from tensor_parser.index_map import index_map
 
 class TestCSVParser(unittest.TestCase):
 
-  def test_sort_none(self):
-    imap = index_map(index_map.SORT_NONE)
+  def test_sub(self):
+    imap = index_map()
     imap.add('banana')
     imap.add('apple')
-    imap.add(0)
+    imap.add('apple')
+
+    self.assertEqual(imap.get_count('banana'), 1)
+    self.assertEqual(imap.get_count('apple'), 2)
+    imap.sub('apple')
+    self.assertEqual(imap.get_count('apple'), 1)
+    imap.sub('apple')
+    self.assertEqual(imap.get_count('apple'), 0)
+    
+
+  def test_sort_none(self):
+    imap = index_map(sort=False)
+    imap.add('banana')
+    imap.add('apple')
+    imap.add('0')
 
     self.assertFalse(imap.is_mapped())
     imap.build_map()
@@ -18,11 +32,11 @@ class TestCSVParser(unittest.TestCase):
 
     self.assertEqual(imap['banana'], 1)
     self.assertEqual(imap['apple'], 2)
-    self.assertEqual(imap[0], 3)
+    self.assertEqual(imap['0'], 3)
 
 
   def test_sort_lex(self):
-    imap = index_map(index_map.SORT_LEX)
+    imap = index_map()
     imap.add('banana')
     imap.add('apple')
     imap.add(0)
@@ -35,7 +49,7 @@ class TestCSVParser(unittest.TestCase):
 
 
   def test_sort_int(self):
-    imap = index_map(index_map.SORT_INT)
+    imap = index_map(type_func=int)
     imap.add(3)
     imap.add(2)
     imap.add(0)
@@ -48,7 +62,7 @@ class TestCSVParser(unittest.TestCase):
 
 
   def test_sort_flt(self):
-    imap = index_map(index_map.SORT_FLT)
+    imap = index_map(type_func=float)
     imap.add(3.2)
     imap.add(2.1)
     imap.add(2.5)

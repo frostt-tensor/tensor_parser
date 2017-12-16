@@ -27,8 +27,8 @@ class TestTensorConfig(unittest.TestCase):
     config = tensor_config()
     config.add_mode('one')
     config.add_mode('two')
-    self.assertEqual(config.get_mode(0)['field'], 'one')
-    self.assertEqual(config.get_mode(1)['field'], 'two')
+    self.assertEqual(config.get_mode_by_idx(0)['field'], 'one')
+    self.assertEqual(config.get_mode_by_idx(1)['field'], 'two')
     self.assertEqual(config.num_modes(), 2)
 
 
@@ -36,22 +36,13 @@ class TestTensorConfig(unittest.TestCase):
     config = tensor_config()
     # no sort by default
     config.add_mode('item_ids')
-    self.assertEqual(config.get_mode_sort('item_ids'), index_map.SORT_NONE)
+    m = config.get_mode_by_idx(0)
+    self.assertEqual(m['sort'], True)
 
     # change sort
-    config.set_mode_sort('item_ids', index_map.SORT_LEX)
-    self.assertEqual(config.get_mode_sort('item_ids'), index_map.SORT_LEX)
-
-    # set sort from beginning
-    config.add_mode('user_ids', index_map.SORT_INT)
-    self.assertEqual(config.get_mode_sort('user_ids'), index_map.SORT_INT)
-    func = config.get_mode_sort('user_ids')
-    self.assertEqual(func('1'), 1)
-
-    # custom sort
-    config.set_mode_sort('user_ids', lambda x: 1138)
-    func = config.get_mode_sort('user_ids')
-    self.assertEqual(func('hi'), 1138)
+    config.set_mode_sort('item_ids', False)
+    m = config.get_mode_by_idx(0)
+    self.assertEqual(m['sort'], False)
 
 
 if __name__ == '__main__':

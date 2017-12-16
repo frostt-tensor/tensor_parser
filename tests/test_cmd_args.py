@@ -23,8 +23,8 @@ class TestCSVParser(unittest.TestCase):
     self.assertEqual(config.get_output(), 'out.tns')
 
     self.assertEqual(config.num_modes(), 1)
-    self.assertEqual(config.get_mode(0)['field'], '1')
-    self.assertEqual(config.get_mode(0)['sort'], index_map.SORT_NONE)
+    self.assertEqual(config.get_mode_by_idx(0)['field'], '1')
+    self.assertEqual(config.get_mode_by_idx(0)['sort'], True)
 
   def test_delim(self):
     myargs = ['1.csv', '2.csv', 'out.tns', '-F|', '-f1']
@@ -35,21 +35,29 @@ class TestCSVParser(unittest.TestCase):
     myargs = ['1.csv', '2.csv', 'out.tns', '-f2', '-fuser']
     config = build_tensor.parse_args(myargs)
     self.assertEqual(config.num_modes(), 2)
-    self.assertEqual(config.get_mode(0)['field'], '2')
-    self.assertEqual(config.get_mode(1)['field'], 'user')
-    self.assertEqual(config.get_mode(0)['sort'], index_map.SORT_NONE)
-    self.assertEqual(config.get_mode(1)['sort'], index_map.SORT_NONE)
-
-  def test_sort(self):
-    myargs = ['1.csv', '2.csv', 'out.tns', '-f2', '-fuser', '-n2', '-luser']
-    config = build_tensor.parse_args(myargs)
-    self.assertEqual(config.get_mode(0)['sort'], index_map.SORT_INT)
-    self.assertEqual(config.get_mode(1)['sort'], index_map.SORT_LEX)
+    self.assertEqual(config.get_mode_by_idx(0)['field'], '2')
+    self.assertEqual(config.get_mode_by_idx(1)['field'], 'user')
+    self.assertEqual(config.get_mode_by_idx(0)['sort'], True)
+    self.assertEqual(config.get_mode_by_idx(1)['sort'], True)
 
   def test_vals(self):
     myargs = ['hi.csv', 'out.tns', '-f1', '--vals=ratings']
     config = build_tensor.parse_args(myargs)
     self.assertEqual(config.get_vals(), 'ratings')
+
+  def test_header(self):
+    myargs = ['hi.csv', 'out.tns', '-f1']
+    config = build_tensor.parse_args(myargs)
+    self.assertEqual(config.has_header(), None)
+
+    myargs = ['hi.csv', 'out.tns', '-f1', '--has-header=yes']
+    config = build_tensor.parse_args(myargs)
+    self.assertEqual(config.has_header(), True)
+
+    myargs = ['hi.csv', 'out.tns', '-f1', '--has-header=no']
+    config = build_tensor.parse_args(myargs)
+    self.assertEqual(config.has_header(), False)
+
 
 if __name__ == '__main__':
     unittest.main()
