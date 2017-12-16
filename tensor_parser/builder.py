@@ -1,5 +1,8 @@
 
+import os
 import sys
+import uuid # for filenames
+from csvsorter import csvsort
 
 from .index_map import index_map
 from .tensor_config import tensor_config
@@ -26,6 +29,44 @@ def grab_cols(parser, config):
   return cols
 
 
+def merge_dups(tensor_name, num_modes, reduce_func=sum):
+  sorted_f = tensor_name + '.sorted'
+  tmp_name = str(uuid.uuid4().hex) + '.tns'
+  try:
+    # Sort the "CSV" tensor
+    csvsort(tensor_name, range(num_modes), output_filename=sorted_f,
+        delimiter=' ', has_header=False)
+
+    # Merge duplicate non-zeros
+    with open(tmp_name, 'w') as fout:
+      dup_lines = []
+      with open(sorted_f, 'r') as fin:
+        for line in fin:
+          line = line.split()
+
+          # indices do not match -- merge previous duplicates
+          if len(dup_lines) > 0 and line[:-1] != dup_lines[0][:-1]:
+            vals = [eval(x[-1]) for x in dup_lines]
+            inds = [str(x) for x in dup_lines[0][:-1]]
+            print('{} {}'.format(' '.join(inds), reduce_func(vals)), file=fout)
+            dup_lines = []
+
+          dup_lines.append(line)
+
+      # final flush
+      vals = [eval(x[-1]) for x in dup_lines]
+      inds = [str(x) for x in dup_lines[0][:-1]]
+      print('{} {}'.format(' '.join(inds), reduce_func(vals)), file=fout)
+
+      os.rename(tmp_name, tensor_name)
+
+  except:
+    os.remove(tmp_name)
+
+  finally:
+    os.remove(sorted_f)
+
+
 
 def build_tensor(config):
   num_modes = config.num_modes() # save some typing
@@ -35,7 +76,7 @@ def build_tensor(config):
     m_type = config.get_mode_by_idx(m)['type']
     sort_  = config.get_mode_by_idx(m)['sort']
     name_ = config.get_mode_by_idx(m)['field']
-    indmaps.append(index_map(name=name, type_func=m_type, sort=sort_))
+    indmaps.append(index_map(name=name_, type_func=m_type, sort=sort_))
 
   #
   # Build index maps
@@ -111,6 +152,9 @@ def build_tensor(config):
 
         if not pruned:
           print('{} {}'.format(' '.join(inds), val), file=fout)
+
+
+  merge_dups(config.get_output(), num_modes)
 
   #
   # Write maps to file

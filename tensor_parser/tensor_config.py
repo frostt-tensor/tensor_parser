@@ -1,9 +1,8 @@
 
-
 from .index_map import index_map
 
 class tensor_config:
-  
+
 
   #
   # Sorting types. These are lambda functions which are applied to the keys
@@ -16,7 +15,7 @@ class tensor_config:
 
   def __init__(self, csv_names=None, tensor_name=None):
     """ An intermediate representation of user configuration information.
-    
+
     Any front-end such as a command-line or GUI should construct one of these
     objects and provide to a `tensor_parser` object.
 
@@ -37,7 +36,7 @@ class tensor_config:
 
   def set_delimiter(self, delim):
     """ Specify the delimiter in the CSV file(s).
-    
+
     This will override whichever delimiter is detected automatically.
 
     Args:
@@ -133,7 +132,7 @@ class tensor_config:
 
   def get_mode_by_idx(self, mode_idx):
     """ Return the dictionary representing meta-data for mode `mode_idx`.
-    
+
     The dictionary will take the form:
       {
         csv_field => one of the columns in the CSV file
