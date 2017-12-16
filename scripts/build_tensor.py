@@ -68,7 +68,10 @@ def parse_args(cmd_args=None):
   parser.add_argument('-q', '--query', action='append',
       choices=['field-sep', 'header'],
       help='query a component of the CSV file and exit')
-
+  
+  parser.add_argument('--merge', type=str, default='sum',
+      choices=['none', 'sum', 'min', 'max', 'avg', 'count'],
+      help='function for merging duplicate non-zeros (default: sum)')
 
   #
   # Parse arguments.
@@ -110,6 +113,7 @@ def parse_args(cmd_args=None):
   if not args.type:
     args.type = []
 
+
   # Build tensor configuration
   config = tensor_config(csv_names=cmd_args.csv, tensor_name=cmd_args.tensor)
   config.set_delimiter(cmd_args.field_sep)
@@ -119,6 +123,17 @@ def parse_args(cmd_args=None):
 
   for f in cmd_args.no_sort:
     config.set_mode_sort(f, False)
+
+  if args.merge:
+    funcs = {
+      'none' : None,
+      'sum'  : sum,
+      'min'  : min,
+      'max'  : max,
+      'avg'  : (lambda l : float(sum(l)) / len(l)),
+      'count': len
+    }
+    config.set_merge_func(funcs[args.merge])
 
   #
   # Set mode types. Each --type flag gives us a string of

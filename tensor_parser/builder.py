@@ -2,6 +2,7 @@
 import os
 import sys
 import uuid # for filenames
+from contextlib import redirect_stdout
 from csvsorter import csvsort
 
 from .index_map import index_map
@@ -30,12 +31,16 @@ def grab_cols(parser, config):
 
 
 def merge_dups(tensor_name, num_modes, reduce_func=sum):
+  """ Remove duplicate non-zeros from a tensor file. """
   sorted_f = tensor_name + '.sorted'
   tmp_name = str(uuid.uuid4().hex) + '.tns'
   try:
-    # Sort the "CSV" tensor
-    csvsort(tensor_name, range(num_modes), output_filename=sorted_f,
-        delimiter=' ', has_header=False)
+    # Sort the "CSV" tensor -- this library prints to stdout in old versions,
+    # so suppress that
+    with open(os.devnull, 'w') as redirect:
+      with redirect_stdout(redirect):
+        csvsort(tensor_name, range(num_modes), output_filename=sorted_f,
+            delimiter=' ', has_header=False)
 
     # Merge duplicate non-zeros
     with open(tmp_name, 'w') as fout:
@@ -58,9 +63,11 @@ def merge_dups(tensor_name, num_modes, reduce_func=sum):
       inds = [str(x) for x in dup_lines[0][:-1]]
       print('{} {}'.format(' '.join(inds), reduce_func(vals)), file=fout)
 
+      # overwrite original data
       os.rename(tmp_name, tensor_name)
 
   except:
+    # if there was an exception, we don't want to overwrite the original data
     os.remove(tmp_name)
 
   finally:
@@ -153,8 +160,10 @@ def build_tensor(config):
         if not pruned:
           print('{} {}'.format(' '.join(inds), val), file=fout)
 
-
-  merge_dups(config.get_output(), num_modes)
+  # may be None to leave duplicates
+  if config.get_merge_func():
+    merge_dups(config.get_output(), num_modes,
+        reduce_func=config.get_merge_func())
 
   #
   # Write maps to file

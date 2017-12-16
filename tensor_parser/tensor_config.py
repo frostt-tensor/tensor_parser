@@ -32,6 +32,7 @@ class tensor_config:
     self._has_header = None
     self._modes = []
     self._vals = None
+    self._merge_func = sum
 
 
   def set_delimiter(self, delim):
@@ -128,6 +129,13 @@ class tensor_config:
         self._modes[idx]['type'] = type_func
         return
     raise IndexError("Error: field '{}' not found.".format(csv_field))
+
+
+  def set_merge_func(self, merge_func):
+    self._merge_func = merge_func
+
+  def get_merge_func(self):
+    return self._merge_func
 
 
   def get_mode_by_idx(self, mode_idx):
