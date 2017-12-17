@@ -30,7 +30,7 @@ def grab_cols(parser, config):
   return cols
 
 
-def merge_dups(tensor_name, num_modes, reduce_func=sum):
+def merge_dups(tensor_name, num_modes, merge_func=sum):
   """ Remove duplicate non-zeros from a tensor file. """
   sorted_f = tensor_name + '.sorted'
   tmp_name = str(uuid.uuid4().hex) + '.tns'
@@ -53,7 +53,7 @@ def merge_dups(tensor_name, num_modes, reduce_func=sum):
           if len(dup_lines) > 0 and line[:-1] != dup_lines[0][:-1]:
             vals = [eval(x[-1]) for x in dup_lines]
             inds = [str(x) for x in dup_lines[0][:-1]]
-            print('{} {}'.format(' '.join(inds), reduce_func(vals)), file=fout)
+            print('{} {}'.format(' '.join(inds), merge_func(vals)), file=fout)
             dup_lines = []
 
           dup_lines.append(line)
@@ -61,7 +61,7 @@ def merge_dups(tensor_name, num_modes, reduce_func=sum):
       # final flush
       vals = [eval(x[-1]) for x in dup_lines]
       inds = [str(x) for x in dup_lines[0][:-1]]
-      print('{} {}'.format(' '.join(inds), reduce_func(vals)), file=fout)
+      print('{} {}'.format(' '.join(inds), merge_func(vals)), file=fout)
 
       # overwrite original data
       os.rename(tmp_name, tensor_name)
@@ -163,7 +163,7 @@ def build_tensor(config):
   # may be None to leave duplicates
   if config.get_merge_func():
     merge_dups(config.get_output(), num_modes,
-        reduce_func=config.get_merge_func())
+        merge_func=config.get_merge_func())
 
   #
   # Write maps to file

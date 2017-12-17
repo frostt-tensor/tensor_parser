@@ -4,7 +4,6 @@ from .index_map import index_map
 
 class tensor_config:
 
-
   MERGE_NONE  = None
   MERGE_SUM   = sum
   MERGE_MIN   = min
@@ -12,12 +11,11 @@ class tensor_config:
   MERGE_AVG   = (lambda l : float(sum(l)) / len(l))
   MERGE_COUNT = len
 
-
   def __init__(self, csv_names=None, tensor_name=None):
     """ An intermediate representation of user configuration information.
 
     Any front-end such as a command-line or GUI should construct one of these
-    objects and provide to a `tensor_parser` object.
+    objects and provide to a `builder` object.
 
     Args:
       csv_names (list): The list of CSV files to parse.

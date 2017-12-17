@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath('..'))
 
 import tests
 from tensor_parser import builder
+from tensor_parser.tensor_config import tensor_config
 
 class TestBuilder(unittest.TestCase):
 
@@ -38,7 +39,7 @@ class TestBuilder(unittest.TestCase):
         print('1 2 3 1.0', file=fout)
         print('1 2 3 5.0', file=fout)
 
-      builder.merge_dups(tmp_name, 3, reduce_func=max)
+      builder.merge_dups(tmp_name, 3, merge_func=tensor_config.MERGE_MAX)
 
       with open(tmp_name, 'r') as fin:
         lines = fin.readlines()
@@ -58,7 +59,7 @@ class TestBuilder(unittest.TestCase):
         print('2 1 3 2.0', file=fout)
         print('1 2 3 5.0', file=fout)
 
-      builder.merge_dups(tmp_name, 3, reduce_func=sum)
+      builder.merge_dups(tmp_name, 3, merge_func=tensor_config.MERGE_SUM)
 
       with open(tmp_name, 'r') as fin:
         lines = fin.readlines()
@@ -79,7 +80,7 @@ class TestBuilder(unittest.TestCase):
         for i in range(N):
           print('1 2 3 1.0', file=fout)
 
-      builder.merge_dups(tmp_name, 3, reduce_func=sum)
+      builder.merge_dups(tmp_name, 3, merge_func=tensor_config.MERGE_SUM)
 
       with open(tmp_name, 'r') as fin:
         lines = fin.readlines()
@@ -90,6 +91,27 @@ class TestBuilder(unittest.TestCase):
       os.remove(tmp_name)
 
 
+  def test_merge_avg(self):
+    tmp_name = str(uuid.uuid4().hex) + '.tmp'
+    try:
+      # make csv
+      with open(tmp_name, 'w') as fout:
+        print('1 2 3 1.0', file=fout)
+        print('1 2 3 2.0', file=fout)
+        print('1 2 3 3.0', file=fout)
+
+      builder.merge_dups(tmp_name, 3, merge_func=tensor_config.MERGE_AVG)
+
+      with open(tmp_name, 'r') as fin:
+        lines = fin.readlines()
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(lines[0].strip(), '1 2 3 2.0')
+
+    finally:
+      os.remove(tmp_name)
+
+
+
   def test_merge_custom(self):
     tmp_name = str(uuid.uuid4().hex) + '.tmp'
     try:
@@ -98,7 +120,7 @@ class TestBuilder(unittest.TestCase):
         print('1 2 3 1.0', file=fout)
         print('1 2 3 1.0', file=fout)
 
-      builder.merge_dups(tmp_name, 3, reduce_func=lambda x : -1)
+      builder.merge_dups(tmp_name, 3, merge_func=lambda x : -1)
 
       with open(tmp_name, 'r') as fin:
         lines = fin.readlines()
