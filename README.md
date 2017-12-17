@@ -49,7 +49,7 @@ spaces in the name, simply enclose it in quotes: ``--field="time of day"`.
 
 ### Tensor values
 A field of the CSV file can be selected to be used as the values of the tensor
-using the `--vals` flag. If no field is selected to use as the tensor values,
+using the `--vals=` flag. If no field is selected to use as the tensor values,
 `1` is used and the resulting tensor is one of count data.
 
 
