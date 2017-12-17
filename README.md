@@ -9,8 +9,8 @@ A package for constructing sparse tensors from CSV-like data sources.
 ## CSV Files
 We support CSV files stored in text, gzip (`.gz`), or bzip2 (`.bz2`) formats.
 By default, we attempt to auto-detect the header and delimitery of the CSV file
-via Python's supplied CSV parsing library. The `--query` option will query
-the detected CSV metadata and print to `STDOUT`:
+via Python's supplied CSV parsing library. The `--query` option will query the
+detected CSV metadata and print to `STDOUT`:
 
     $ ./build/build_tensor.py traffic.csv.gz out.tns --query
     Found delimiter: ","
@@ -19,10 +19,38 @@ the detected CSV metadata and print to `STDOUT`:
 
 Note that `out.tns` is not touched when querying a CSV file.
 
+Any numer of CSV files can be provided for output, so long as the fields used
+to construct the sparse tensor are found in each file.
+
 If no head is detected, a default of `['1', '2, ...]` is used.
 
 If you wish to use something other than the detected delimiter or field names,
 they can be modified with `--field-sep=` and `--has-header=<yes,no>`.
+
+
+## Tensor Files
+Two types of files are created:
+  * Sparse tensor (`.tns`): the actual tensor data. Each line is a list of
+    indices and a value. For example, `1 1 1 1.38` would be one-non-zero in a
+    third-order tensor.
+  * Mode mappings (`.map`): map the tensor indices to the original values in
+    the source data. Line `i` is the source data that was mapped to index `i`
+    in the tensor.
+For more information on file formats, see
+[FROSTT](http://frostt.io/tensors/file-formats.html).
+
+
+## Tensor Construction
+### Mode selection
+Columns of the CSV file (referred to as "fields") are selected using the
+`--field=` flag. If the CSV file has a header, the supplied parameter must
+match a field in the header (but is **not** case sensitive). If the field has
+spaces in the name, simply enclose it in quotes: ``--field="time of day"`.
+
+### Tensor values
+A field of the CSV file can be selected to be used as the values of the tensor
+using the `--vals` flag. If no field is selected to use as the tensor values,
+`1` is used and the resulting tensor is one of count data.
 
 
 ## Mode Types
@@ -52,7 +80,7 @@ We provide several types which can be specified with the `--type=` flag:
 
 Smart date matching is provided by the
 [dateutil](https://pypi.python.org/pypi/python-dateutil) package. For example,
-"Aug 20" and "08/20/92" will map to the same index if the type is either
+`"Aug 20"` and `"08/20/92"` will map to the same index if the type is either
 `month` or `day`. However, the package maps to the current year if none is
 specified, and thus they will map to different indices if the type is `year`.
 
@@ -68,7 +96,7 @@ A "type" in our context is any object which supports:
     possible, be sure to disable sorting of the mode with `--no-sort`
   * printing: `__str__()` is required to construct `.map` files
 The specification of a type is as simple as providing a function which maps a
-string to some object.  Conveniently, most builtin types already support this
+string to some object. Conveniently, most builtin types already support this
 interface via their constructors. Functions such as `int()` and `float()`
 work well.
 
