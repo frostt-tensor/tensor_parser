@@ -1,6 +1,7 @@
 
 import unittest
 import argparse
+from contextlib import redirect_stdout
 
 import os, sys
 sys.path.append(os.path.abspath('..'))
@@ -58,6 +59,25 @@ class TestCSVParser(unittest.TestCase):
     config = build_tensor.parse_args(myargs)
     self.assertEqual(config.has_header(), False)
 
+
+  def test_type_int(self):
+    myargs = ['hi.csv', 'out.tns', '-f1', '--type=1,int']
+
+    with open(os.devnull, 'w') as redirect:
+      with redirect_stdout(redirect):
+        config = build_tensor.parse_args(myargs)
+    f = config.get_mode('1')['type']
+    self.assertEqual(f('138'), 138)
+
+
+  def test_type_roundf(self):
+    myargs = ['hi.csv', 'out.tns', '-f1', '--type=1,roundf-1']
+
+    with open(os.devnull, 'w') as redirect:
+      with redirect_stdout(redirect):
+        config = build_tensor.parse_args(myargs)
+    f = config.get_mode('1')['type']
+    self.assertEqual(f('1.38'), 1.4)
 
 if __name__ == '__main__':
     unittest.main()

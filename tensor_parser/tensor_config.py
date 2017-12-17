@@ -1,16 +1,16 @@
 
+
 from .index_map import index_map
 
 class tensor_config:
 
 
-  #
-  # Sorting types. These are lambda functions which are applied to the keys
-  # before sorting.
-  #
-  TYPE_STR = lambda x : str(x)
-  TYPE_INT = lambda x : int(x)
-  TYPE_FLOAT = lambda x : float(x)
+  MERGE_NONE  = None
+  MERGE_SUM   = sum
+  MERGE_MIN   = min
+  MERGE_MAX   = max
+  MERGE_AVG   = (lambda l : float(sum(l)) / len(l))
+  MERGE_COUNT = len
 
 
   def __init__(self, csv_names=None, tensor_name=None):
@@ -68,7 +68,7 @@ class tensor_config:
     return self._has_header
 
 
-  def add_mode(self, csv_field, transform=TYPE_STR, sort=True):
+  def add_mode(self, csv_field, transform=index_map.TYPE_STR, sort=True):
     mode = dict()
     mode['field'] = csv_field
     mode['type']  = transform
@@ -109,12 +109,10 @@ class tensor_config:
       set_mode_type('user_ids', lambda x : int(x))
 
     will type of the mode defined by user_ids by their integer representations.
-    Several predefined ones are provided. The above example could be
-    accomplished via:
+    Several predefined ones are provided in the `index_map` class. The above
+    example could be accomplished via:
 
-      set_mode_type('user_ids', TYPE_INT)
-
-    Also provided are TYPE_STR, TYPE_INT, and TYPE_FLOAT.
+      set_mode_type('user_ids', index_map.TYPE_INT)
 
     If `csv_field` does not specify a mode which has been added via
     `add_mode()`, this function raises an IndexError.
@@ -137,15 +135,35 @@ class tensor_config:
   def get_merge_func(self):
     return self._merge_func
 
+  def get_mode(self, csv_field):
+    """ Return the dictionary representing meta-data for a mode.
+
+    NOTE: `csv_field` is case insensitive.
+
+    The dictionary will take the form:
+      {
+        field => one of the columns in the CSV file
+        type  => function for setting type (func)
+        sort  => sorting policy (bool)
+      }
+
+    Args:
+      csv_field (str): Which mode of the tensor to query.
+    """
+    for idx in range(self.num_modes()):
+      if self._modes[idx]['field'].lower() == csv_field.lower():
+        return self._modes[idx]
+    raise IndexError("Error: field {} not found.".format(csv_field))
+
 
   def get_mode_by_idx(self, mode_idx):
     """ Return the dictionary representing meta-data for mode `mode_idx`.
 
     The dictionary will take the form:
       {
-        csv_field => one of the columns in the CSV file
-        type      => function for setting type (func)
-        sort      => sorting policy (bool)
+        field => one of the columns in the CSV file
+        type  => function for setting type (func)
+        sort  => sorting policy (bool)
       }
 
     Args:

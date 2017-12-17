@@ -3,6 +3,14 @@
 import os, sys
 import argparse
 import pprint
+import re
+
+from functools import partial
+
+# Make these available to eval() for user-defined types.
+import datetime
+from dateutil import parser as date_parser
+
 
 # fix path nonsense: https://stackoverflow.com/a/6466139
 if __name__ == '__main__' and __package__ is None:
@@ -12,9 +20,60 @@ if __name__ == '__main__' and __package__ is None:
   __package__ = 'scripts'
 
 
+from tensor_parser.index_map import index_map
 from tensor_parser.tensor_config import tensor_config
 from tensor_parser.csv_parser import csv_parser
 from tensor_parser.builder import build_tensor
+
+
+#
+# Helper functions
+#
+def roundf(ndigits):
+  """ Returns a function that rounds floats with `ndigits` of precision. """
+  def _roundf(ndigits, flt):
+    return round(float(flt), ndigits)
+  return partial(_roundf, ndigits)
+
+
+def parse_types(cmd_args, config):
+  """ Set mode types. Each --type flag gives us a string of field,field,..,func
+  """
+  builtin_funcs = {
+    # index_map builtins
+    'str'   : index_map.TYPE_STR,
+    'int'   : index_map.TYPE_INT,
+    'float' : index_map.TYPE_FLOAT,
+    'date'  : index_map.TYPE_DATE,
+    'year'  : index_map.TYPE_DATE_YEAR,
+    'month' : index_map.TYPE_DATE_MONTH,
+    'day'   : index_map.TYPE_DATE_DAY,
+    'hour'  : index_map.TYPE_DATE_HOUR,
+    'min'   : index_map.TYPE_DATE_MIN,
+    'sec'   : index_map.TYPE_DATE_SEC,
+  }
+  for f in cmd_args:
+    f = f.split(',')
+    text_func = f[-1]
+
+    func = None
+    if text_func in builtin_funcs:
+      func = builtin_funcs[text_func]
+    else:
+      # match function name and optional args that start after "-"
+      # for example, "roundf-3" is transformed to "roundf(3)"
+      func_re = '(?P<func_name>\w+)-(?P<func_args>[,\w]+)$'
+      match = re.match(func_re, text_func)
+      if match:
+        func_name = match.group('func_name')
+        func_args = match.group('func_args')
+        text_func = '{}({})'.format(func_name, func_args)
+      func = eval(text_func)
+
+    for field in f[:-1]:
+      print('field "{}" -> type "{}"'.format(field, text_func))
+      config.set_mode_type(field, func)
+
 
 
 def parse_args(cmd_args=None):
@@ -30,8 +89,31 @@ def parse_args(cmd_args=None):
     Use the '--query' flag to determine what is automatically detected. For
     example, '--query=header' will print the list of discovered CSV fields.
 
-    If no field is provided for tensor values ('--vals'), then a binary tensor
-    is constructed.
+    If no field is provided for tensor values ('--vals'), then a tensor of
+    count data is constructed.
+
+    TYPES
+    =====
+    You can change the type of one or multiple CSV fields with the '--type'
+    flag. For example, '--type=userid,custid,int --type=sale,date' will treat
+    the 'userid' and 'custid' fields as integers and the 'sale' field as a
+    date.
+
+      Available types:
+        str      => string (default)
+        int      => integer
+        float    => float
+        roundf-X => round a float to X digits
+        date     => calendar date (supports year, month, day, hour, seconds)
+        year     => extract year from date
+        month    => extract month from date
+        day      => extract day from date
+        hour     => extract hour from date
+        min      => extract minute from date
+        sec      => extract second from date
+
+    ADVANCED: if the provided field is not in the above list, it is interpreted
+    as a custom type and converted to source code. See README.md for details.
   '''
   parser = argparse.ArgumentParser(description=my_description,
       formatter_class=argparse.RawTextHelpFormatter)
@@ -68,7 +150,7 @@ def parse_args(cmd_args=None):
   parser.add_argument('-q', '--query', action='append',
       choices=['field-sep', 'header'],
       help='query a component of the CSV file and exit')
-  
+
   parser.add_argument('--merge', type=str, default='sum',
       choices=['none', 'sum', 'min', 'max', 'avg', 'count'],
       help='function for merging duplicate non-zeros (default: sum)')
@@ -124,31 +206,22 @@ def parse_args(cmd_args=None):
   for f in cmd_args.no_sort:
     config.set_mode_sort(f, False)
 
+  merge_funcs = {
+    'none' : tensor_config.MERGE_NONE,
+    'sum'  : tensor_config.MERGE_SUM,
+    'min'  : tensor_config.MERGE_MIN,
+    'max'  : tensor_config.MERGE_MAX,
+    'avg'  : tensor_config.MERGE_AVG,
+    'count': tensor_config.MERGE_COUNT,
+  }
   if args.merge:
-    funcs = {
-      'none' : None,
-      'sum'  : sum,
-      'min'  : min,
-      'max'  : max,
-      'avg'  : (lambda l : float(sum(l)) / len(l)),
-      'count': len
-    }
-    config.set_merge_func(funcs[args.merge])
+    config.set_merge_func(merge_funcs[args.merge])
 
-  #
-  # Set mode types. Each --type flag gives us a string of
-  # field,field,..,typefunc
-  for f in cmd_args.type:
-    f = f.split(',')
-    mtype = f[-1]
-    for field in f[:-1]:
-      print('field "{}" -> type "{}"'.format(field, mtype))
-      config.set_mode_type(field, eval(mtype))
+  parse_types(cmd_args.type, config)
 
   config.set_vals(cmd_args.vals)
 
   return config
-
 
 
 if __name__ == '__main__':
