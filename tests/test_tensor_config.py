@@ -31,6 +31,15 @@ class TestTensorConfig(unittest.TestCase):
     self.assertEqual(config.get_mode_by_idx(1)['field'], 'two')
     self.assertEqual(config.num_modes(), 2)
 
+  def test_get_mode(self):
+    config = tensor_config()
+    config.add_mode('mode')
+    config.set_mode_sort('mode', False)
+    mode = config.get_mode('mode')
+    self.assertEqual(mode['field'], 'mode')
+    self.assertEqual(mode['type']('138'), '138')
+    self.assertEqual(mode['sort'], False)
+
 
   def test_sort(self):
     config = tensor_config()

@@ -2,6 +2,8 @@
 
 import sys
 from collections import OrderedDict
+from dateutil import parser as date_parser
+
 
 class index_map:
   """ Construct and maintain a mapping of strings to contiguous indices in a
@@ -16,7 +18,27 @@ class index_map:
   in the tensor).
   """
 
-  def __init__(self, name="", type_func=str, sort=True):
+
+  #
+  # Base types.
+  #
+  TYPE_STR   = str
+  TYPE_INT   = int
+  TYPE_FLOAT = float
+
+  #
+  # date types -- we have a lot of these
+  #
+  TYPE_DATE  = date_parser.parse
+  TYPE_DATE_YEAR  = lambda x: date_parser.parse(x).year
+  TYPE_DATE_MONTH = lambda x: date_parser.parse(x).month
+  TYPE_DATE_DAY   = lambda x: date_parser.parse(x).day
+  TYPE_DATE_HOUR  = lambda x: date_parser.parse(x).hour
+  TYPE_DATE_MIN   = lambda x: date_parser.parse(x).minute
+  TYPE_DATE_SEC   = lambda x: date_parser.parse(x).second
+
+
+  def __init__(self, name="", type_func=TYPE_STR, sort=True):
     self._keys = OrderedDict()
     self._map  = dict()
 

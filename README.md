@@ -5,6 +5,11 @@ Tensor Parser
 
 A package for constructing sparse tensors from CSV-like data sources.
 
+
+## Mode Types
+
+## Handling Duplicates
+
 ## Testing
 This project uses the builtin `unittest` library provided by Python. You can
 run all unit tests via:
