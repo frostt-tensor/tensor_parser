@@ -37,18 +37,18 @@ column affects the mapping of CSV entries to unique indices. For example, one
 may wish to round floats such that `1.38` and `1.38111` map to the same value.
 
 We provide several types which can be specified with the `--type=` flag:
-    * `str` => String (default)
-    * `int` => Integer
-    * `float` => Floating-point number
-    * `roundf-X` => Floating-point numbers rounded to `X` decimal places
-    * `date` => A `datetime` object that encodes year, month, day, hour,
-      minute, second, and millisecond
-    * `year` => A year (integer extracted from `date`)
-    * `month` => A month (integer in range [0,11] extracted from `date`)
-    * `day` => A day (integer in range [0,30] extracted from `date`)
-    * `hour` => A hour (integer in range [0,23] extracted from `date`)
-    * `min` => A min (integer in range [0,60] extracted from `date`)
-    * `sec` => A sec (integer in range [0,60] extracted from `date`)
+  * `str` => String (default)
+  * `int` => Integer
+  * `float` => Floating-point number
+  * `roundf-X` => Floating-point numbers rounded to `X` decimal places
+  * `date` => A `datetime` object that encodes year, month, day, hour,
+    minute, second, and millisecond
+  * `year` => A year (integer extracted from `date`)
+  * `month` => A month (integer in range [0,11] extracted from `date`)
+  * `day` => A day (integer in range [0,30] extracted from `date`)
+  * `hour` => A hour (integer in range [0,23] extracted from `date`)
+  * `min` => A min (integer in range [0,60] extracted from `date`)
+  * `sec` => A sec (integer in range [0,60] extracted from `date`)
 
 Smart date matching is provided by the
 [dateutil](https://pypi.python.org/pypi/python-dateutil) package. For example,
@@ -63,10 +63,10 @@ to integers.
 
 ### Advanced mode types
 A "type" in our context is any object which supports:
-  * construction: `type("X")` should return some representation of "X".
+  * construction: `type("X")` should return some representation of "X"
   * comparison: `__le__()` is required to sort indices. If no comparison is
-    possible, be sure to disable sorting of the mode with `--no-sort`.
-  * printing: `__str__()` is required to construct `.map` files.
+    possible, be sure to disable sorting of the mode with `--no-sort`
+  * printing: `__str__()` is required to construct `.map` files
 The specification of a type is as simple as providing a function which maps a
 string to some object.  Conveniently, most builtin types already support this
 interface via their constructors. Functions such as `int()` and `float()`
