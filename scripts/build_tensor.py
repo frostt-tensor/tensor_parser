@@ -147,9 +147,8 @@ def parse_args(cmd_args=None):
   parser.add_argument('--has-header', choices=['yes', 'no'],
       help='Indicate whether CSV has a header row (default: auto)')
 
-  parser.add_argument('-q', '--query', action='append',
-      choices=['field-sep', 'header'],
-      help='query a component of the CSV file and exit')
+  parser.add_argument('-q', '--query', action='store_true',
+      help='query metadata of the CSV file and exit')
 
   parser.add_argument('--merge', type=str, default='sum',
       choices=['none', 'sum', 'min', 'max', 'avg', 'count'],
@@ -172,17 +171,12 @@ def parse_args(cmd_args=None):
     else:
       args.has_header = False
 
-  #
-  # Check for file query.no_sort
-  #
+  # Check for file query
   if args.query:
     parser = csv_parser(args.csv[0])
-    for query in args.query:
-      if query == 'field-sep':
-        print('Found delimiter: "{}"'.format(parser.get_delimiter()))
-      if query == 'header':
-        print('Found fields:')
-        pprint.pprint(parser.get_header())
+    print('Found delimiter: "{}"'.format(parser.get_delimiter()))
+    print('Found fields:')
+    pprint.pprint(parser.get_header())
     sys.exit(0)
 
 
