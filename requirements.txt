@@ -1,2 +1,2 @@
 python-dateutil
-git+git://github.com/dionysio/csvsorter.git#egg=csvsorter
+git+git://github.com/ShadenSmith/csvsorter.git#egg=csvsorter
