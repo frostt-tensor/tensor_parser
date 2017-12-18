@@ -10,9 +10,10 @@ indices in the tensor and merges duplicate non-zeros.
 
 ## Requirements
 `tensor_parser` is written in `python3`. Its dependencies are:
-  * `python >= 3.4`
+  * `python` >= 3.4
   * `python-dateutil`
   * `csvsorter`
+
 To install external dependencies, you can simple use `pip`:
 
     $ pip install -r requirements.txt
