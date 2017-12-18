@@ -3,7 +3,23 @@ Tensor Parser
 
 [![Build Status](https://travis-ci.org/frostt-tensor/tensor_parser.svg?branch=master)](https://travis-ci.org/frostt-tensor/tensor_parser)
 
-A package for constructing sparse tensors from CSV-like data sources.
+A package for constructing sparse tensors from CSV-like data sources. This
+package constructs mappings from columns in the CSV file(s) to contiguous
+indices in the tensor and merges duplicate non-zeros.
+
+
+## Requirements
+`tensor_parser` is written in `python3`. Its dependencies are:
+  * `python >= 3.4`
+  * `python-dateutil`
+  * `csvsorter`
+To install external dependencies, you can simple use `pip`:
+
+    $ pip install -r requirements.txt
+
+To run, use the entry point:
+
+    $ ./scripts/build_tensor.py --help
 
 
 ## CSV Files
