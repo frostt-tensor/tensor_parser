@@ -14,7 +14,7 @@ indices in the tensor and merges duplicate non-zeros.
   * `python-dateutil`
   * `csvsorter`
 
-To install external dependencies, you can simple use `pip`:
+To install external dependencies, you can simply use `pip`:
 
     $ pip install -r requirements.txt
 
@@ -48,7 +48,7 @@ they can be modified with `--field-sep=` and `--has-header=<yes,no>`.
 ## Tensor Files
 Two types of files are created:
   * Sparse tensor (`.tns`): the actual tensor data. Each line is a list of
-    indices and a value. For example, `1 1 1 1.38` would be one-non-zero in a
+    indices and a value. For example, `1 1 1 1.38` would be one non-zero in a
     third-order tensor.
   * Mode mappings (`.map`): map the tensor indices to the original values in
     the source data. Line `i` is the source data that was mapped to index `i`
