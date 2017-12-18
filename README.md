@@ -5,11 +5,11 @@ Tensor Parser
 
 A package for constructing sparse tensors from CSV-like data sources. This
 package constructs mappings from columns in the CSV file(s) to contiguous
-indices in the tensor and merges duplicate non-zeros.
+indices in the tensor and merges duplicate non-zeros (i.e., duplicate rows).
 
 
 ## Requirements
-`tensor_parser` is written in `python3`. Its dependencies are:
+`tensor_parser` is written in Python3. Its dependencies are:
   * `python` >= 3.4
   * `python-dateutil`
   * `csvsorter`
@@ -39,7 +39,7 @@ Note that `out.tns` is not touched when querying a CSV file.
 Any numer of CSV files can be provided for output, so long as the fields used
 to construct the sparse tensor are found in each file.
 
-If no head is detected, a default of `['1', '2, ...]` is used.
+If no header is detected, a default of `["1", "2", ...]` is used.
 
 If you wish to use something other than the detected delimiter or field names,
 they can be modified with `--field-sep=` and `--has-header=<yes,no>`.
