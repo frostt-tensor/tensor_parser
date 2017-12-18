@@ -40,7 +40,7 @@ def merge_dups(tensor_name, num_modes, merge_func=sum):
     with open(os.devnull, 'w') as redirect:
       with redirect_stdout(redirect):
         csvsort(tensor_name, range(num_modes), output_filename=sorted_f,
-            delimiter=' ', has_header=False)
+            max_size=800, delimiter=' ', has_header=False)
 
     # Merge duplicate non-zeros
     with open(tmp_name, 'w') as fout:
