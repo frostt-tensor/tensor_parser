@@ -24,7 +24,9 @@ To run, use the entry point:
 
 
 ## CSV Files
-We support CSV files stored in text, gzip (`.gz`), or bzip2 (`.bz2`) formats.
+We support CSV files stored in text, compressed gzip (`.gz`), or compressed
+bzip2 (`.bz2`) formats.
+
 By default, we attempt to auto-detect the header and delimiter of the CSV file
 via Python's supplied CSV parsing library. The `--query` option will query the
 detected CSV metadata and print to `STDOUT`:
@@ -34,7 +36,8 @@ detected CSV metadata and print to `STDOUT`:
     Found fields:
     ['Date Of Stop', 'Time Of Stop', 'Latitude', 'Longitude', 'Description']
 
-Note that `out.tns` is not touched when querying a CSV file.
+Note that `out.tns` is not touched when querying a CSV file, though it is
+required as a positional argument.
 
 Any numer of CSV files can be provided for output, so long as the fields used
 to construct the sparse tensor are found in each file.
@@ -60,9 +63,10 @@ For more information on file formats, see
 ## Tensor Construction
 ### Mode selection
 Columns of the CSV file (referred to as "fields") are selected using the
-`--field=` flag. If the CSV file has a header, the supplied parameter must
-match a field in the header (but is **not** case sensitive). If the field has
-spaces in the name, simply enclose it in quotes: `--field="time of day"`.
+`--field=` flag (abbreviated `-f`). If the CSV file has a header, the supplied
+parameter must match a field in the header (but is **not** case sensitive).
+Otherwise, the columns are referenced by number and one-indexed. If the field
+has spaces in the name, simply enclose it in quotes: `--field="time of day"`.
 
 
 ### Tensor values
@@ -80,7 +84,8 @@ treated as integers, floats, dates, or other types.
 
 In addition to affecting the ordering of the resulting indices, the type of a
 column affects the mapping of CSV entries to unique indices. For example, one
-may wish to round floats such that `1.38` and `1.38111` map to the same value.
+may wish to round floats such that `1.38` and `1.38111` map to the same index,
+or to map dates `Aug 20` and `August 20` to the same index.
 
 We provide several types which can be specified with the `--type=` flag:
   * `str` => String (default)
@@ -104,7 +109,7 @@ specified, and thus they will map to different indices if the type is `year`.
 
 You can specify multiple fields in the same `--type` instance. For example:
 `--type=userid,itemid,int` would treat the fields `userid` and `itemid` both
-to integers.
+as integers.
 
 
 ### Advanced mode types
@@ -125,7 +130,7 @@ as source code and specifies a custom type. For example,
     --type=cost,"lambda x : float(x) * 1.06"
 
 may be a method of scaling all costs by 6% to account for sales tax. Note that
-all types should take a single parameter which will be an `str` object.
+all type functions take a single parameter which will be an `str` object.
 
 
 
