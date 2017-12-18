@@ -8,7 +8,7 @@ A package for constructing sparse tensors from CSV-like data sources.
 
 ## CSV Files
 We support CSV files stored in text, gzip (`.gz`), or bzip2 (`.bz2`) formats.
-By default, we attempt to auto-detect the header and delimitery of the CSV file
+By default, we attempt to auto-detect the header and delimiter of the CSV file
 via Python's supplied CSV parsing library. The `--query` option will query the
 detected CSV metadata and print to `STDOUT`:
 
@@ -45,7 +45,7 @@ For more information on file formats, see
 Columns of the CSV file (referred to as "fields") are selected using the
 `--field=` flag. If the CSV file has a header, the supplied parameter must
 match a field in the header (but is **not** case sensitive). If the field has
-spaces in the name, simply enclose it in quotes: ``--field="time of day"`.
+spaces in the name, simply enclose it in quotes: `--field="time of day"`.
 
 ### Tensor values
 A field of the CSV file can be selected to be used as the values of the tensor
@@ -104,7 +104,7 @@ Many types can be specified with a short anonymous function. If the specified
 type is not found in the list of builtin types (above), then it is treated
 as source code and specifies a custom type. For example,
 
-    `--type=cost,"lambda x : float(x) * 1.06"`
+    --type=cost,"lambda x : float(x) * 1.06"
 
 may be a method of scaling all costs by 6% to account for sales tax. Note that
 all types should take a single parameter which will be an `str` object.
@@ -124,7 +124,8 @@ options:
   * `count` (use the number of duplicates)
 
 Note that merging duplicates requires the tensor to be sorted. A disk-based
-sort is provided by the `csvsorter` library.
+sort is provided by the [csvsorter](https://github.com/dionysio/csvsorter)
+library.
 
 
 ## Example
