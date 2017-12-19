@@ -10,7 +10,7 @@ indices in the tensor and merges duplicate non-zeros (i.e., duplicate rows).
 
 ## Requirements
 `tensor_parser` is written in Python3. Its dependencies are:
-  * `python` >= 3.4
+  * `python` >= 3.5
   * `python-dateutil`
   * `csvsorter`
 
