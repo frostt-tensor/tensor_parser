@@ -2,6 +2,7 @@
 import os
 import sys
 import uuid # for filenames
+from ast import literal_eval # safely eval literals during merge
 from contextlib import redirect_stdout
 from csvsorter import csvsort
 
@@ -51,7 +52,7 @@ def merge_dups(tensor_name, num_modes, merge_func=sum):
 
           # indices do not match -- merge previous duplicates
           if len(dup_lines) > 0 and line[:-1] != dup_lines[0][:-1]:
-            vals = [eval(x[-1]) for x in dup_lines]
+            vals = [literal_eval(x[-1]) for x in dup_lines]
             inds = [str(x) for x in dup_lines[0][:-1]]
             print('{} {}'.format(' '.join(inds), merge_func(vals)), file=fout)
             dup_lines = []
