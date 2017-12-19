@@ -39,7 +39,7 @@ detected CSV metadata and print to `STDOUT`:
 Note that `out.tns` is not touched when querying a CSV file, though it is
 required as a positional argument.
 
-Any numer of CSV files can be provided for output, so long as the fields used
+Any number of CSV files can be provided for output, so long as the fields used
 to construct the sparse tensor are found in each file.
 
 If no header is detected, a default of `["1", "2", ...]` is used.
