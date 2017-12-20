@@ -56,6 +56,7 @@ Two types of files are created:
   * Mode mappings (`.map`): map the tensor indices to the original values in
     the source data. Line `i` is the source data that was mapped to index `i`
     in the tensor.
+
 For more information on file formats, see
 [FROSTT](http://frostt.io/tensors/file-formats.html).
 
