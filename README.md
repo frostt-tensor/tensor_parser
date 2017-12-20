@@ -115,14 +115,16 @@ as integers.
 
 ### Advanced mode types
 A "type" in our context is any object which supports:
-  * construction: `type("X")` should return some representation of "X"
+  * construction: `type("X")` should return some representation of "X" (note
+    that a string is always the parameter)
   * comparison: `__le__()` is required to sort indices. If no comparison is
     possible, be sure to disable sorting of the mode with `--no-sort`
   * printing: `__str__()` is required to construct `.map` files
+
 The specification of a type is as simple as providing a function which maps a
-string to some object. Conveniently, most builtin types already support this
-interface via their constructors. Functions such as `int()` and `float()`
-work well.
+string to some object.  Conveniently, most builtin types already support this
+interface via their constructors. Functions such as `int()` and `float()` work
+well.
 
 Many types can be specified with a short anonymous function. If the specified
 type is not found in the list of builtin types (above), then it is treated
