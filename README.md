@@ -144,7 +144,7 @@ example,
     --type=age,"lambda x : int(x) if int(x) > 16 else None"
 
 would omit any non-zeros whose age is less than `16`, and treat the remaining
-ages as `int`s.
+ages as integers.
 
 
 ## Handling Duplicates
