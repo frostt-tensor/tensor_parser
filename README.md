@@ -12,7 +12,7 @@ indices in the tensor and merges duplicate non-zeros (i.e., duplicate rows).
 `tensor_parser` is written in Python3. Its dependencies are:
   * `python` >= 3.5
   * `python-dateutil`
-  * `csvsorter`
+  * `csvsorter` from [GitHub](https://github.com/ShadenSmith/csvsorter)
 
 To install external dependencies, you can simply use `pip`:
 
@@ -130,11 +130,21 @@ Many types can be specified with a short anonymous function. If the specified
 type is not found in the list of builtin types (above), then it is treated
 as source code and specifies a custom type. For example,
 
-    --type=cost,"lambda x : float(x) * 1.06"
+    --type=latitude,"lambda x : round(float(x),3)"
 
-may be a method of scaling all costs by 6% to account for sales tax. Note that
-all type functions take a single parameter which will be an `str` object.
+would round all latitudes to three decimal places and is equivalent to the
+builtin type `roundf-3`. Note that all type functions take a single parameter
+which will be an `str` object.
 
+
+### Pruning Tensor Entries
+A type function can return `None` to omit a non-zero from the tensor. For
+example,
+
+    --type=age,"lambda x : int(x) if int(x) > 16 else None"
+
+would omit any non-zeros whose age is less than `16`, and treat the remaining
+ages as integers.
 
 
 ## Handling Duplicates
@@ -150,8 +160,8 @@ options:
   * `count` (use the number of duplicates)
 
 Note that merging duplicates requires the tensor to be sorted. A disk-based
-sort is provided by the [csvsorter](https://github.com/dionysio/csvsorter)
-library.
+sort is provided by a fork of the
+[csvsorter](https://github.com/ShadenSmith/csvsorter) library.
 
 
 ## Example
